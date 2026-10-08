@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
-import { INITIAL_MESSAGES } from "../data/mockMessages";
 import { io } from "socket.io-client";
 
+const socket = io("http://localhost:3000");
 export default function ChatView() {
-    const [messages, setMessages] = useState(INITIAL_MESSAGES);
+    const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState("");
-    const [isTyping, setIsTyping] = useState(true);
+    const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
-    const socket = io("http://localhost:3000");
 
     useEffect(() => {
         const handleAIResponse = (data) => {
