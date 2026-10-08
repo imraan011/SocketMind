@@ -6,7 +6,7 @@ import {
     sendAiMessage,
 } from "../services/socket.service";
 
-export default function ChatView() {
+export default function ChatView({ onGoHome }) {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(false);
@@ -80,7 +80,18 @@ export default function ChatView() {
         <main className="chat-view">
             {/* Header */}
             <header className="chat-header">
-                <h1 className="chat-header-title">New Chat</h1>
+                <div className="chat-header-row">
+                    {onGoHome && (
+                        <button type="button" onClick={onGoHome} className="chat-back-btn" aria-label="Go to home">
+                            <svg style={{ width: '16px', height: '16px' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="19" y1="12" x2="5" y2="12" />
+                                <polyline points="12 19 5 12 12 5" />
+                            </svg>
+                            Home
+                        </button>
+                    )}
+                    <h1 className="chat-header-title">New Chat</h1>
+                </div>
             </header>
 
             {/* Centered Thread Column */}

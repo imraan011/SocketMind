@@ -1,30 +1,32 @@
 import { useState } from 'react'
 import Sidebar from './components/Sidebar'
-import DashboardHero from './components/DashboardHero'
-import RecentChats from './components/RecentChats'
+import DashboardView from './components/DashboardView'
 import ChatView from './components/ChatView'
-import { INITIAL_RECENT_CHATS } from './data/recentChats'
 
 export default function App() {
-  // active view state: 'dashboard' | 'new-chat' | 'history'
-  const [activeTab, setActiveTab] = useState('dashboard')
-  const [chats] = useState(INITIAL_RECENT_CHATS)
-  // mobile sidebar open/close state
+  // dashboard = landing page, chat = chat interface
+  const [view, setView] = useState('dashboard')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
+  // Dashboard is a full-page standalone landing — no sidebar
+  if (view === 'dashboard') {
+    return <DashboardView onStartChat={() => setView('chat')} />
+  }
+
+  // Chat view uses sidebar layout
   return (
     <div style={{ display: 'flex', width: '100%', minHeight: '100vh', position: 'relative' }}>
-      {/* Sidebar navigation */}
       <Sidebar
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        activeTab="chat"
+        onSelectTab={(tab) => {
+          if (tab === 'dashboard') setView('dashboard')
+        }}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      {/* Main Content Area with Mobile Top Navbar */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%', overflow: 'hidden' }}>
-        {/* Mobile Top Navbar (Visible only on <768px) */}
+        {/* Mobile top navbar */}
         <header className="mobile-navbar">
           <div className="mobile-navbar-brand">
             <svg style={{ width: '18px', height: '18px' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -47,30 +49,7 @@ export default function App() {
           </button>
         </header>
 
-        {/* View Switcher */}
-        {activeTab === 'dashboard' ? (
-          <main className="dashboard-view">
-            <div className="dashboard-container">
-              <DashboardHero
-                onStartChat={() => setActiveTab('new-chat')}
-                onViewHistory={() => setActiveTab('history')}
-              />
-
-              <RecentChats
-                chats={chats}
-                onSelectChat={() => setActiveTab('new-chat')}
-              />
-
-              <footer className="app-footer">
-                <p className="app-footer-text font-mono">
-                  Built with Socket.io + Gemini
-                </p>
-              </footer>
-            </div>
-          </main>
-        ) : (
-          <ChatView />
-        )}
+        <ChatView onGoHome={() => setView('dashboard')} />
       </div>
     </div>
   )
