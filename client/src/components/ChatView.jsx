@@ -1,12 +1,41 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
 import { INITIAL_MESSAGES } from "../data/mockMessages";
+import { io } from "socket.io-client";
 
 export default function ChatView() {
     const [messages, setMessages] = useState(INITIAL_MESSAGES);
     const [inputValue, setInputValue] = useState("");
     const [isTyping, setIsTyping] = useState(true);
     const messagesEndRef = useRef(null);
+    const socket = io("http://localhost:3000");
+
+    useEffect(() => {
+        const handleAIResponse = (data) => {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+
+            const aireply = {
+                id: Date.now(),
+                sender: "ai",
+                text: data.message,
+                time: timeStr,
+            };
+
+            setIsTyping(false);
+
+            setMessages((prev) => [...prev, aireply]);
+        };
+
+        socket.on("ai-message-response", handleAIResponse);
+
+        return () => {
+            socket.off("ai-message-response", handleAIResponse);
+        };
+    }, []);
 
     // auto scroll to bottom when messages update
     useEffect(() => {
@@ -17,6 +46,8 @@ export default function ChatView() {
     const handleSend = () => {
         if (!inputValue.trim()) return;
 
+        const usertext = inputValue.trim();
+
         const now = new Date();
         const timeStr = now.toLocaleTimeString([], {
             hour: "2-digit",
@@ -26,28 +57,17 @@ export default function ChatView() {
         const userMsg = {
             id: Date.now(),
             sender: "user",
-            text: inputValue.trim(),
+            text: usertext,
             time: timeStr,
         };
 
         setMessages((prev) => [...prev, userMsg]);
+
         setInputValue("");
+
         setIsTyping(true);
 
-        // simulated typing & response
-        setTimeout(() => {
-            setIsTyping(false);
-            const aiReply = {
-                id: Date.now() + 1,
-                sender: "ai",
-                text: "Processing...",
-                time: new Date().toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                }),
-            };
-            setMessages((prev) => [...prev, aiReply]);
-        }, 1000);
+        socket.emit("ai-message", usertext);
     };
 
     const handleKeyDown = (e) => {

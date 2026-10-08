@@ -11,7 +11,7 @@ import { log } from "console";
 const httpserver = createServer(app);
 const io = new Server(httpserver, {
     cors: {
-        origin: "http://localhost:5173", methods: ["GET", "POST"]
+        origin: "http://localhost:5173",
     }
 });
 
