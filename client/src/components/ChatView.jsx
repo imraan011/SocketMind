@@ -1,8 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
-import { io } from "socket.io-client";
+import {
+    disconnectSocket,
+    onAiMessageResponse,
+    sendAiMessage,
+} from "../services/socket.service";
 
-const socket = io("http://localhost:3000");
 export default function ChatView() {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState("");
@@ -29,10 +32,10 @@ export default function ChatView() {
             setMessages((prev) => [...prev, aireply]);
         };
 
-        socket.on("ai-message-response", handleAIResponse);
+        onAiMessageResponse(handleAIResponse);
 
         return () => {
-            socket.off("ai-message-response", handleAIResponse);
+            disconnectSocket(handleAIResponse);
         };
     }, []);
 
@@ -66,7 +69,7 @@ export default function ChatView() {
 
         setIsTyping(true);
 
-        socket.emit("ai-message", usertext);
+        sendAiMessage(usertext);
     };
 
     const handleKeyDown = (e) => {
