@@ -7,7 +7,7 @@ export const initSocket = (io) => {
         const chatHistory = [];
 
         socket.on("ai-message", async (message) => {
-            console.log("1. Client Prompt:", JSON.stringify(message));
+            // console.log("1. Client Prompt:", JSON.stringify(message));
 
             chatHistory.push({
                 role: "user",
@@ -30,12 +30,13 @@ export const initSocket = (io) => {
                     chatHistory.pop();
                 }
 
-                console.log("2. Gemini Response:", reply);
+                // console.log("2. Gemini Response:", reply);
                 socket.emit("ai-message-response", {
                     message: reply || "AI respond nahi kar paya.",
                 });
             } catch (err) {
                 console.error("Gemini Error:", err.message);
+                // console.error("Gemini Error:", err.message);
                 chatHistory.pop();
                 socket.emit("ai-message-response", {
                     message: "Error generating response: " + err.message,

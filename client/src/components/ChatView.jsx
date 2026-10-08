@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./ChatMessage";
 import {
-    disconnectSocket,
     onAiMessageResponse,
+    offAiMessageResponse,
     sendAiMessage,
 } from "../services/socket.service";
 
@@ -28,14 +28,13 @@ export default function ChatView() {
             };
 
             setIsTyping(false);
-
             setMessages((prev) => [...prev, aireply]);
         };
 
         onAiMessageResponse(handleAIResponse);
 
         return () => {
-            disconnectSocket(handleAIResponse);
+            offAiMessageResponse(handleAIResponse);
         };
     }, []);
 
@@ -64,9 +63,7 @@ export default function ChatView() {
         };
 
         setMessages((prev) => [...prev, userMsg]);
-
         setInputValue("");
-
         setIsTyping(true);
 
         sendAiMessage(usertext);
