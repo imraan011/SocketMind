@@ -1,4 +1,5 @@
 import { useState } from "react";
+import ReactMd from "react-markdown";
 
 export default function ChatMessage({ message }) {
     const isUser = message.sender === "user";
@@ -34,7 +35,7 @@ export default function ChatMessage({ message }) {
 
                 {/* Message Box */}
                 <div className="chat-bubble-ai">
-                    <p>{message.text}</p>
+                    <ReactMd>{message.text}</ReactMd>
                     {message.code && (
                         <div className="chat-code-block font-mono">
                             <pre className="code-pre">
