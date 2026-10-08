@@ -40,14 +40,14 @@ export default function ChatView() {
             const aiReply = {
                 id: Date.now() + 1,
                 sender: "ai",
-                text: "Received your prompt in real time. Processing...",
+                text: "Processing...",
                 time: new Date().toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                 }),
             };
             setMessages((prev) => [...prev, aiReply]);
-        }, 1500);
+        }, 1000);
     };
 
     const handleKeyDown = (e) => {
