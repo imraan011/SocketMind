@@ -17,7 +17,7 @@ export default function HowItWorks() {
                         <div>
                             <div className="card-top">
                                 <span className="card-step-num">{step.num}</span>
-                                <BadgeIcon paths={step.iconPaths} />
+                                <BadgeIcon paths={step.iconPaths} className="card-icon" />
                             </div>
                             <h3 className="card-heading">{step.label}</h3>
                             <p className="card-desc">{step.desc}</p>

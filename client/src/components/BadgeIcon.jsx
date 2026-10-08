@@ -1,8 +1,8 @@
 // Reusable badge icon — renders SVG paths from a descriptor array
-export default function BadgeIcon({ paths }) {
+export default function BadgeIcon({ paths, className = 'badge-icon' }) {
     return (
         <svg
-            className="badge-icon"
+            className={className}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
