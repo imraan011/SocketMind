@@ -17,7 +17,7 @@ export default function App() {
   return (
     <div style={{ display: 'flex', width: '100%', minHeight: '100vh', position: 'relative' }}>
       <Sidebar
-        activeTab="chat"
+        activeTab="new-chat"
         onSelectTab={(tab) => {
           if (tab === 'dashboard') setView('dashboard')
         }}

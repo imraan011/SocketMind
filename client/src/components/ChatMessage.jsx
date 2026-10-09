@@ -1,4 +1,3 @@
-import { useState } from "react";
 import ReactMd from "react-markdown";
 
 export default function ChatMessage({ message }) {
