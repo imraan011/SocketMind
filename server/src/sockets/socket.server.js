@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import { parseCookie } from "cookie";
 import jwt from "jsonwebtoken";
 import userModel from "../models/user.model.js";
+import { generateResponse } from "../services/GROQ.ai.service.js";
 
 export function initSocketServer(httpServer) {
     //cors
@@ -28,10 +29,22 @@ export function initSocketServer(httpServer) {
         }
     });
     io.on("connection", (socket) => {
-        console.log("socket user data : ", socket);
-
-        console.log("new Socket Connection:", socket.id);
+        socket.on("ai-message", async (message) => {
+            const text =
+                typeof message === "string" ? message : message?.prompt;
+            console.log("user: ", text);
+            try {
+                const response = await generateResponse([
+                    {
+                        role: "user",
+                        content: text,
+                    },
+                ]);
+                console.log("ai: ", response);
+                socket.emit("ai-response", { message: response });
+            } catch (error) {
+                console.log("Ai Error ", error);
+            }
+        });
     });
 }
-
-
