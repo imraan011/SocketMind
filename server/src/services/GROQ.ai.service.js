@@ -4,7 +4,7 @@ import "dotenv/config";
 const groq = new Groq({
     apiKey: process.env.GROQ_API,
 });
-const model = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
+const model = process.env.GROQ_MODEL 
 
 export async function generateResponse(history) {
     const completion = await groq.chat.completions.create({
