@@ -13,9 +13,9 @@ export const sendAiMessage = (message) => {
 };
 
 export const onAiMessageResponse = (callback) => {
-    socket.on("ai-message-response", callback);
+    socket.on("ai-response", callback);
 };
 
 export const offAiMessageResponse = (callback) => {
-    socket.off("ai-message-response", callback);
+    socket.off("ai-response", callback);
 };
