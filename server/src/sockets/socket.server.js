@@ -51,7 +51,7 @@ export function initSocketServer(httpServer) {
                 const chatHistory = await messageModel
                     .find({ chat, user: socket.user.id })
                     .sort({ createdAt: -1 })
-                    .limit(7)
+                    .limit(11)
                     .lean();
 
                 const messagesForAI = chatHistory.reverse().map((item) => ({
