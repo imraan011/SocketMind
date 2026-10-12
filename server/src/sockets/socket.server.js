@@ -30,66 +30,46 @@ export function initSocketServer(httpServer) {
         }
     });
     io.on("connection", (socket) => {
-        // socket.on("ai-message", async (message) => {
-        //     // const text =
-        //     //     typeof message === "string" ? message : message?.prompt;
-        //     // console.log("user: ", text);
+        socket.on("ai-message", async (messagePayload) => {
+            // console.log("raw message:", JSON.stringify(messagePayload));
 
-        //     const { chat, prompt } = message || {};
-        //     console.log("user: ", prompt);
+            const { chat, message: prompt } = messagePayload || {};
 
-        //     try {
-        //         await messageModel.create({
-        //             chat: message.chat,
-        //             user: socket.user._id,
-        //             content: prompt,
-        //             role: "user",
-        //         });
-        //         const response = await generateResponse([
-        //             {
-        //                 role: "user",
-        //                 content: prompt,
-        //             },
-        //         ]);
+            if (!prompt || !chat) {
+                return socket.emit("ai-response", {
+                    message: "message aur chat id dono chahiye.",
+                });
+            }
 
-        //         await messageModel.create({
-        //             chat: message.chat,
-        //             user: socket.user._id,
-        //             content: response,
-        //             role: "system",
-        //         });
+            try {
+                await messageModel.create({
+                    chat,
+                    user: socket.user.id,
+                    content: prompt,
+                    role: "user",
+                });
 
-        //         console.log("AI: ", response);
+                const chatHistory = await messageModel
+                    .find({ chat, user: socket.user.id })
+                    .sort({ createdAt: 1 });
 
-        //         socket.emit("ai-response", { message: response });
-        //     } catch (error) {
-        //         console.log("Ai Error ", error);
-        //     }
-        // });
-    socket.on("ai-message", async (message) => {
-    console.log("raw message:", JSON.stringify(message));
+                const messagesForAI = chatHistory.map((item) => ({
+                    role: item.role === "system" ? "assistant" : item.role,
+                    content: item.content,
+                }));
+                const response = await generateResponse(messagesForAI);
 
-    const prompt =
-        typeof message === "string"
-            ? message
-            : message?.prompt ?? message?.content ?? message?.message;
-    const chat = message?.chat;
+                await messageModel.create({
+                    chat,
+                    user: socket.user.id,
+                    content: response,
+                    role: "system",
+                });
 
-    if (!prompt) {
-        return socket.emit("ai-response", { message: "Empty message mila." });
-    }
-
-    try {
-        await messageModel.create({ chat, user: socket.user.id, content: prompt, role: "user" });
-
-        const response = await generateResponse([{ role: "user", content: prompt }]);
-
-        await messageModel.create({ chat, user: socket.user.id, content: response, role: "system" });
-
-        socket.emit("ai-response", { message: response });
-    } catch (error) {
-        console.log("Ai Error ", error.message);
-    }
-});
+                socket.emit("ai-response", { message: response });
+            } catch (error) {
+                console.log("Ai Error ", error.message);
+            }
+        });
     });
 }
