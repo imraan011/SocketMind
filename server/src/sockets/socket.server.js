@@ -48,12 +48,12 @@ export function initSocketServer(httpServer) {
                     content: prompt,
                     role: "user",
                 });
-
                 const chatHistory = await messageModel
                     .find({ chat, user: socket.user.id })
-                    .sort({ createdAt: 1 });
+                    .sort({ createdAt: -1 })
+                    .limit(7);
 
-                const messagesForAI = chatHistory.map((item) => ({
+                const messagesForAI = chatHistory.reverse().map((item) => ({
                     role: item.role === "system" ? "assistant" : item.role,
                     content: item.content,
                 }));
