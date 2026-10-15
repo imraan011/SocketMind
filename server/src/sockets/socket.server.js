@@ -51,41 +51,49 @@ export function initSocketServer(httpServer) {
                     role: "user",
                 });
 
+                const vector = await genrateVectors(messagePayload.message);
+
+                const memory = await queryMemory({
+                    queryVector: vector,
+                    limit: 5,
+                    metadata: {
+                        user: String(socket.user.id),
+                        chatId: String(chatId),
+                    },
+                });
+
+                await createMemory({
+                    messageId: userMessage._id.toString(),
+                    vector,
+                    metadata: {
+                        chatId: String(chatId),
+                        user: String(socket.user.id),
+                        text: prompt,
+                    },
+                });
+
                 const chatHistory = await messageModel
                     .find({ chat: chatId, user: socket.user.id })
                     .sort({ createdAt: -1 })
                     .limit(11)
                     .lean();
 
-                const vector = await genrateVectors(messagePayload.message);
-
-                const memory = await queryMemory({
-                    queryVector: vector,
-                    limit: 5,
-                    filter: {
-                        user: String(socket.user.id),
-                        chatId: String(chatId),
-                    },
-                    metadata: {},
-                });
-
-                console.log(memory);
-
-                await createMemory({
-                    messageId: userMessage._id.toString(),
-                    vector,
-                    metadata: {
-                        chatId,
-                        user: socket.user._id,
-                        text: prompt,
-                    },
-                });
-
-                const messagesForAI = chatHistory.reverse().map((item) => ({
+                const stm = chatHistory.reverse().map((item) => ({
                     role: item.role === "system" ? "assistant" : item.role,
                     content: item.content,
                 }));
-                const response = await generateResponse(messagesForAI);
+
+                const ltm = [
+                    {
+                        role: "system",
+                        content: `
+                        Relevant previous memories from this user's conversation:
+                        ${memory.map((item) => item.metadata.text).join("\n")}
+                        Use these memories only when relevant to the current question.
+                        `,
+                    },
+                ];
+                const response = await generateResponse([...ltm, ...stm]);
 
                 const responseMessage = await messageModel.create({
                     chat: chatId,
@@ -95,12 +103,13 @@ export function initSocketServer(httpServer) {
                 });
 
                 const responseVectors = await genrateVectors(response);
+
                 await createMemory({
                     messageId: responseMessage._id.toString(),
                     vector: responseVectors,
                     metadata: {
-                        chatId,
-                        user: socket.user._id,
+                        chatId: String(chatId),
+                        user: String(socket.user.id),
                         text: response,
                     },
                 });

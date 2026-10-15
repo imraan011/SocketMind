@@ -1,4 +1,5 @@
 import { Pinecone } from "@pinecone-database/pinecone";
+import "dotenv/config";
 
 const pc = new Pinecone({
     apiKey: process.env.PINECONE_API_KEY,
@@ -21,7 +22,7 @@ export async function queryMemory({ queryVector, limit = 5, metadata }) {
     const data = await socketMindindex.query({
         vector: queryVector,
         topK: limit,
-        filter: metadata ? { metadata } : undefined,
+        filter: metadata || undefined,
         includeMetadata: true,
     });
 
