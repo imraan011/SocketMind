@@ -33,6 +33,8 @@ export function initSocketServer(httpServer) {
         socket.on("ai-message", async (messagePayload) => {
             // console.log("raw message:", JSON.stringify(messagePayload));
 
+            //messagePayload = { chat: "chatId", message: "user message" }
+
             const { chat, message: prompt } = messagePayload || {};
 
             if (!prompt || !chat) {
@@ -42,12 +44,12 @@ export function initSocketServer(httpServer) {
             }
 
             try {
-                await messageModel.create({
-                    chat,
-                    user: socket.user.id,
-                    content: prompt,
-                    role: "user",
-                });
+                // await messageModel.create({
+                //     chat,
+                //     user: socket.user.id,
+                //     content: prompt,
+                //     role: "user",
+                // });
                 const chatHistory = await messageModel
                     .find({ chat, user: socket.user.id })
                     .sort({ createdAt: -1 })
@@ -60,12 +62,12 @@ export function initSocketServer(httpServer) {
                 }));
                 const response = await generateResponse(messagesForAI);
 
-                await messageModel.create({
-                    chat,
-                    user: socket.user.id,
-                    content: response,
-                    role: "system",
-                });
+                // await messageModel.create({
+                //     chat,
+                //     user: socket.user.id,
+                //     content: response,
+                //     role: "system",
+                // });
 
                 socket.emit("ai-response", { message: response });
             } catch (error) {

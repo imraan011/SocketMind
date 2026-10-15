@@ -17,7 +17,7 @@
 ## 🛠️ Tech Stack
 
 - **Frontend**: React 19, Vite, SCSS, React Markdown, Socket.io Client
-- **Backend**: Node.js, Express, Socket.io, Google GenAI SDK (`@google/genai`)
+- **Backend**: Node.js, Express, Socket.io, Groq SDK (`@google/genai`)
 
 ---
 
