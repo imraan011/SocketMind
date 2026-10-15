@@ -5,6 +5,7 @@ import userModel from "../models/user.model.js";
 import { generateResponse } from "../services/GROQ.ai.service.js";
 import { messageModel } from "../models/message.model.js";
 import { genrateVectors } from "../services/embeddingai.service.js";
+import { createMemory } from "../services/vector.service.js";
 
 export function initSocketServer(httpServer) {
     //cors
@@ -43,12 +44,12 @@ export function initSocketServer(httpServer) {
             }
 
             try {
-                // await messageModel.create({
-                //     chatId,
-                //     user: socket.user.id,
-                //     content: prompt,
-                //     role: "user",
-                // });
+                await messageModel.create({
+                    chatId,
+                    user: socket.user.id,
+                    content: prompt,
+                    role: "user",
+                });
 
                 const chatHistory = await messageModel
                     .find({ chatId, user: socket.user.id })
@@ -57,7 +58,14 @@ export function initSocketServer(httpServer) {
                     .lean();
 
                 const vector = await genrateVectors(messagePayload.message);
-                console.log("vector genrated", vector);
+                await createMemory({
+                    messageId: "846531",
+                    vector,
+                    metadata: {
+                        chatId,
+                        user: socket.user.id,
+                    },
+                });
 
                 const messagesForAI = chatHistory.reverse().map((item) => ({
                     role: item.role === "system" ? "assistant" : item.role,
@@ -65,12 +73,12 @@ export function initSocketServer(httpServer) {
                 }));
                 const response = await generateResponse(messagesForAI);
 
-                // await messageModel.create({
-                //     chatId,
-                //     user: socket.user.id,
-                //     content: response,
-                //     role: "system",
-                // });
+                await messageModel.create({
+                    chatId,
+                    user: socket.user.id,
+                    content: response,
+                    role: "system",
+                });
 
                 socket.emit("ai-response", { message: response });
             } catch (error) {

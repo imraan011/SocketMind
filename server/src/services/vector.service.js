@@ -5,14 +5,25 @@ const pc = new Pinecone({
 });
 const socketMindindex = pc.index(process.env.PINECONE_INDEX);
 
+// export async function createMemory({ vector, metadata, messageId }) {
+//     await socketMindindex.upsert([
+//         {
+//             id: messageId,
+//             values: vector,
+//             metadata,
+//         },
+//     ]);
+// }
 export async function createMemory({ vector, metadata, messageId }) {
-    await socketMindindex.upsert([
-        {
-            id: messageId,
-            values: vector,
-            metadata,
-        },
-    ]);
+    await socketMindindex.upsert({
+        records: [
+            {
+                id: messageId,
+                values: vector,
+                metadata,
+            },
+        ],
+    });
 }
 
 export async function queryMemory({ queryVector, limit = 5, metadata }) {
