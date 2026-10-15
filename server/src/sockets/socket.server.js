@@ -5,7 +5,7 @@ import userModel from "../models/user.model.js";
 import { generateResponse } from "../services/GROQ.ai.service.js";
 import { messageModel } from "../models/message.model.js";
 import { genrateVectors } from "../services/embeddingai.service.js";
-import { createMemory } from "../services/vector.service.js";
+import { createMemory, queryMemory } from "../services/vector.service.js";
 
 export function initSocketServer(httpServer) {
     //cors
@@ -58,12 +58,26 @@ export function initSocketServer(httpServer) {
                     .lean();
 
                 const vector = await genrateVectors(messagePayload.message);
+
+                const memory = await queryMemory({
+                    queryVector: vector,
+                    limit: 5,
+                    filter: {
+                        user: String(socket.user.id),
+                        chatId: String(chatId),
+                    },
+                    metadata: {},
+                });
+
+                console.log(memory);
+
                 await createMemory({
-                    messageId: userMessage._id,
+                    messageId: userMessage._id.toString(),
                     vector,
                     metadata: {
                         chatId,
                         user: socket.user._id,
+                        text: prompt,
                     },
                 });
 
@@ -82,11 +96,12 @@ export function initSocketServer(httpServer) {
 
                 const responseVectors = await genrateVectors(response);
                 await createMemory({
-                    messageId: responseMessage._id,
+                    messageId: responseMessage._id.toString(),
                     vector: responseVectors,
                     metadata: {
                         chatId,
                         user: socket.user._id,
+                        text: response,
                     },
                 });
 
