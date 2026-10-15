@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import "dotenv/config";
 
-export async function main(contents) {
+export async function genrateVectors(contents) {
     const ai = new GoogleGenAI({
         apiKey: process.env.GEMINI_API,
     });
@@ -9,7 +9,10 @@ export async function main(contents) {
     const response = await ai.models.embedContent({
         model: "gemini-embedding-2",
         contents,
+        config: {
+            outputDimensionality: 768,
+        },
     });
 
-    console.log(response.embeddings);
+    return response.embeddings[0].values;
 }
