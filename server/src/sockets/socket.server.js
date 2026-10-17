@@ -53,25 +53,14 @@ export function initSocketServer(httpServer) {
                     }),
 
                     genrateVectors(messagePayload.message),
-
-                    createMemory({
-                        messageId: userMessage._id.toString(),
-                        vector,
-                        metadata: {
-                            chatId: String(chatId),
-                            user: String(socket.user.id),
-                            text: prompt,
-                        },
-                    }),
                 ]);
 
                 const [memory, chatHistory] = await Promise.all([
                     queryMemory({
                         queryVector: vector,
                         limit: 5,
-                        metadata: {
+                        filter: {
                             user: String(socket.user.id),
-                            chatId: String(chatId),
                         },
                     }),
 
@@ -104,12 +93,22 @@ export function initSocketServer(httpServer) {
                 const [responseMessage, responseVectors] = await Promise.all([
                     messageModel.create({
                         chat: chatId,
-                        user: socket.user._id,
+                        user: socket.user.id,
                         content: response,
                         role: "system",
                     }),
                     genrateVectors(response),
                 ]);
+
+                await createMemory({
+                    messageId: userMessage._id.toString(),
+                    vector,
+                    metadata: {
+                        chatId: String(chatId),
+                        user: String(socket.user.id),
+                        text: prompt,
+                    },
+                });
 
                 await createMemory({
                     messageId: responseMessage._id.toString(),
