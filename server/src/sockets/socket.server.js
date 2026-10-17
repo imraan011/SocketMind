@@ -44,39 +44,43 @@ export function initSocketServer(httpServer) {
             }
 
             try {
-                const userMessage = await messageModel.create({
-                    chat: chatId,
-                    user: socket.user.id,
-                    content: prompt,
-                    role: "user",
-                });
+                const [userMessage, vector] = await Promise.all([
+                    messageModel.create({
+                        chat: chatId,
+                        user: socket.user.id,
+                        content: prompt,
+                        role: "user",
+                    }),
 
-                const vector = await genrateVectors(messagePayload.message);
+                    genrateVectors(messagePayload.message),
 
-                const memory = await queryMemory({
-                    queryVector: vector,
-                    limit: 5,
-                    metadata: {
-                        user: String(socket.user.id),
-                        chatId: String(chatId),
-                    },
-                });
+                    createMemory({
+                        messageId: userMessage._id.toString(),
+                        vector,
+                        metadata: {
+                            chatId: String(chatId),
+                            user: String(socket.user.id),
+                            text: prompt,
+                        },
+                    }),
+                ]);
 
-                await createMemory({
-                    messageId: userMessage._id.toString(),
-                    vector,
-                    metadata: {
-                        chatId: String(chatId),
-                        user: String(socket.user.id),
-                        text: prompt,
-                    },
-                });
+                const [memory, chatHistory] = await Promise.all([
+                    queryMemory({
+                        queryVector: vector,
+                        limit: 5,
+                        metadata: {
+                            user: String(socket.user.id),
+                            chatId: String(chatId),
+                        },
+                    }),
 
-                const chatHistory = await messageModel
-                    .find({ chat: chatId, user: socket.user.id })
-                    .sort({ createdAt: -1 })
-                    .limit(11)
-                    .lean();
+                    messageModel
+                        .find({ chat: chatId, user: socket.user.id })
+                        .sort({ createdAt: -1 })
+                        .limit(11)
+                        .lean(),
+                ]);
 
                 const stm = chatHistory.reverse().map((item) => ({
                     role: item.role === "system" ? "assistant" : item.role,
@@ -95,14 +99,17 @@ export function initSocketServer(httpServer) {
                 ];
                 const response = await generateResponse([...ltm, ...stm]);
 
-                const responseMessage = await messageModel.create({
-                    chat: chatId,
-                    user: socket.user._id,
-                    content: response,
-                    role: "system",
-                });
+                socket.emit("ai-response", { message: response });
 
-                const responseVectors = await genrateVectors(response);
+                const [responseMessage, responseVectors] = await Promise.all([
+                    messageModel.create({
+                        chat: chatId,
+                        user: socket.user._id,
+                        content: response,
+                        role: "system",
+                    }),
+                    genrateVectors(response),
+                ]);
 
                 await createMemory({
                     messageId: responseMessage._id.toString(),
@@ -113,8 +120,6 @@ export function initSocketServer(httpServer) {
                         text: response,
                     },
                 });
-
-                socket.emit("ai-response", { message: response });
             } catch (error) {
                 console.log("Ai Error ", error.message);
             }
