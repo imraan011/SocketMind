@@ -72,3 +72,35 @@ export async function registerUserApi(fullname, email, password) {
   });
   return handleResponse(response);
 }
+
+// GET /api/auth/me - cookie verify karna
+export async function checkAuthApi() {
+  try {
+    const response = await fetch(`${API_BASE}/api/auth/me`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      clearStoredUser();
+      return null;
+    }
+    const data = await response.json();
+    if (data.user) setStoredUser(data.user);
+    return data.user;
+  } catch {
+    return null;
+  }
+}
+
+// POST /api/auth/logout - cookie clear kar rahe hain
+export async function logoutUserApi() {
+  try {
+    await fetch(`${API_BASE}/api/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } finally {
+    clearStoredUser();
+  }
+}
+

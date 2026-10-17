@@ -10,13 +10,15 @@ export async function authMiddleware(req, res, next) {
     }
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await userModel.findById(decoded.id || decoded._id).select("-password");
 
-        const user = await userModel.findOne({
-            id: decoded._id,
-        });
+        if (!user) {
+            return res.status(401).json({
+                message: "unauthorized",
+            });
+        }
 
         req.user = user;
-
         next();
     } catch (error) {
         return res.status(401).json({

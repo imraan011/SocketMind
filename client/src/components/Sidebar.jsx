@@ -1,3 +1,5 @@
+import { logoutUserApi } from '../services/auth.service';
+
 export default function Sidebar({ activeTab, onSelectTab, isOpen, onClose }) {
   const navItems = [
     {
@@ -87,9 +89,12 @@ export default function Sidebar({ activeTab, onSelectTab, isOpen, onClose }) {
         <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #e5e5e5' }}>
           <button
             type="button"
-            onClick={() => {
-              localStorage.removeItem('socketmind_user');
-              window.location.href = '/login';
+            onClick={async () => {
+              try {
+                await logoutUserApi();
+              } finally {
+                window.location.href = '/login';
+              }
             }}
             className="sidebar-btn"
             style={{ padding: '8px 10px', fontSize: '13px' }}
@@ -102,6 +107,7 @@ export default function Sidebar({ activeTab, onSelectTab, isOpen, onClose }) {
             <span>Sign out</span>
           </button>
         </div>
+
       </aside>
     </>
   )

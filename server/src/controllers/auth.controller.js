@@ -102,3 +102,20 @@ export async function loginUser(req, res) {
         });
     }
 }
+
+// Current logged in user fetch karna
+export async function getMe(req, res) {
+    return res.status(200).json({
+        message: "Authenticated",
+        user: req.user,
+    });
+}
+
+// User logout handler - cookie clear kar rahe hain
+export async function logoutUser(req, res) {
+    res.clearCookie("token", { httpOnly: true });
+    return res.status(200).json({
+        message: "Logged out successfully",
+    });
+}
+
