@@ -4,7 +4,7 @@ const SOCKET_URL = import.meta.env.SOCKET_URL || "http://localhost:3000";
 
 // Single persistent socket instance
 export const socket = io(SOCKET_URL, {
-    transports: ["websocket"],
+    transports: ["polling", "websocket"],
     autoConnect: true,
     withCredentials: true,
 });
