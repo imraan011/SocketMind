@@ -1,4 +1,4 @@
-import { logoutUserApi } from '../services/auth.service';
+import { clearStoredUser } from '../services/auth.service';
 
 export default function Sidebar({ activeTab, onSelectTab, isOpen, onClose }) {
   const navItems = [
@@ -89,16 +89,13 @@ export default function Sidebar({ activeTab, onSelectTab, isOpen, onClose }) {
         <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #e5e5e5' }}>
           <button
             type="button"
-            onClick={async () => {
-              try {
-                await logoutUserApi();
-              } finally {
-                window.location.href = '/login';
-              }
+            onClick={() => {
+              clearStoredUser();
+              window.location.href = '/login';
             }}
             className="sidebar-btn"
-            style={{ padding: '8px 10px', fontSize: '13px' }}
           >
+
             <svg className="sidebar-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
               <polyline points="16 17 21 12 16 7" />

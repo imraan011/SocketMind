@@ -6,6 +6,8 @@ import {
     sendAiMessage,
 } from "../services/socket.service";
 
+import { getStoredUser } from "../services/auth.service";
+
 export default function ChatView({ onGoHome }) {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState("");
@@ -43,11 +45,13 @@ export default function ChatView({ onGoHome }) {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isTyping]);
 
-    // user message submit handler
+    // user message submit handler - backend expects { chatId, message }
     const handleSend = () => {
         if (!inputValue.trim()) return;
 
         const usertext = inputValue.trim();
+        const user = getStoredUser();
+        const activeChatId = user?._id || "600000000000000000000001";
 
         const now = new Date();
         const timeStr = now.toLocaleTimeString([], {
@@ -66,8 +70,9 @@ export default function ChatView({ onGoHome }) {
         setInputValue("");
         setIsTyping(true);
 
-        sendAiMessage(usertext);
+        sendAiMessage({ chatId: activeChatId, message: usertext });
     };
+
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {

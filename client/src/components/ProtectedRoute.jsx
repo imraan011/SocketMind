@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
-import { isAuthenticated, checkAuthApi } from '../services/auth.service';
+import { isAuthenticated } from '../services/auth.service';
 
 /**
  * Route protection wrapper. Redirects unauthenticated requests to /login
@@ -8,25 +7,12 @@ import { isAuthenticated, checkAuthApi } from '../services/auth.service';
  */
 export default function ProtectedRoute({ children }) {
   const location = useLocation();
-  const [isAuthed, setIsAuthed] = useState(isAuthenticated());
 
-  // Backend session verify kar rahe hain
-  useEffect(() => {
-    let isMounted = true;
-    checkAuthApi().then((user) => {
-      if (isMounted) {
-        setIsAuthed(Boolean(user));
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  if (!isAuthed) {
+  if (!isAuthenticated()) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   return children ? children : <Outlet />;
 }
+
 
