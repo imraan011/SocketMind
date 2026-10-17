@@ -13,8 +13,6 @@ export default function LandingNavbar({ onStartChat }) {
                     <span className="navbar-brand-name">SocketMind</span>
                 </div>
                 <div className="navbar-actions">
-                    <a href="#how-it-works" className="navbar-link">How it works</a>
-                    <a href="#features" className="navbar-link">Features</a>
                     <Link to="/login" className="navbar-link">Sign in</Link>
                     <button type="button" onClick={onStartChat} className="nav-chat-btn">
                         Start Chat
