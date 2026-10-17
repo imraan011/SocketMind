@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 // Landing page sticky navbar
 export default function LandingNavbar({ onStartChat }) {
     return (
@@ -13,6 +15,7 @@ export default function LandingNavbar({ onStartChat }) {
                 <div className="navbar-actions">
                     <a href="#how-it-works" className="navbar-link">How it works</a>
                     <a href="#features" className="navbar-link">Features</a>
+                    <Link to="/login" className="navbar-link">Sign in</Link>
                     <button type="button" onClick={onStartChat} className="nav-chat-btn">
                         Start Chat
                     </button>

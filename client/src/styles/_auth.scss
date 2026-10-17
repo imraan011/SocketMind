@@ -1,0 +1,636 @@
+@use './variables' as *;
+
+// Auth split-screen container
+.auth-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  background-color: $bg-main;
+  color: $text-main;
+  font-family: $font-sans;
+
+  // Animation for page mount
+  animation: authFadeIn 0.3s ease-out;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+}
+
+// Left side: Form section
+.auth-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 48px 32px;
+  background-color: $bg-main;
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    padding: 32px 20px;
+    justify-content: flex-start;
+  }
+}
+
+.auth-form-card {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+
+  // Header branding on mobile
+  .auth-mobile-brand {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    text-decoration: none;
+    color: $text-main;
+
+    @media (max-width: 900px) {
+      display: inline-flex;
+    }
+
+    svg {
+      width: 22px;
+      height: 22px;
+      color: $text-main;
+    }
+
+    span {
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+    }
+  }
+
+  .auth-header {
+    margin-bottom: 28px;
+
+    .auth-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: $text-main;
+      margin-bottom: 8px;
+    }
+
+    .auth-subtitle {
+      font-size: 14px;
+      color: $text-muted;
+      line-height: 1.5;
+    }
+  }
+
+  // API Error Banner
+  .auth-error-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: $radius-md;
+    background-color: #fff5f5;
+    border: 1px solid #ffd4d4;
+    color: #c92a2a;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+    animation: authSlideDown 0.2s ease-out;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    span {
+      flex: 1;
+      line-height: 1.45;
+    }
+  }
+
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .auth-row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Primary Action Button
+  .auth-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 20px;
+    margin-top: 6px;
+    background-color: $text-main;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    border: 1px solid transparent;
+    border-radius: $radius-md;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background-color: #000000;
+      box-shadow: 0 0 16px rgba(232, 255, 61, 0.6);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $lime-accent;
+      outline-offset: 2px;
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .btn-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: $lime-accent;
+      border-radius: 50%;
+      animation: authSpin 0.7s linear infinite;
+    }
+  }
+
+  // Footer Navigation Links
+  .auth-footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 13.5px;
+    color: $text-muted;
+
+    .auth-link {
+      color: $text-main;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.15s ease;
+      cursor: pointer;
+
+      &:hover {
+        color: #000000;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $lime-accent;
+        outline-offset: 2px;
+        border-radius: $radius-sm;
+      }
+    }
+  }
+}
+
+// Form Field Component
+.form-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+
+  .form-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: $text-main;
+      letter-spacing: 0.01em;
+    }
+
+    .form-optional-tag {
+      font-family: $font-mono;
+      font-size: 11px;
+      color: $text-dim;
+    }
+  }
+
+  .form-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      background-color: $bg-main;
+      border: 1px solid $border-color;
+      border-radius: $radius-md;
+      font-size: 14px;
+      font-family: $font-sans;
+      color: $text-main;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+      &::placeholder {
+        color: $text-dim;
+      }
+
+      &:hover:not(:disabled):not(:focus) {
+        border-color: #cccccc;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $text-main;
+        box-shadow: 0 0 0 3px rgba(232, 255, 61, 0.45);
+      }
+
+      &:disabled {
+        background-color: $bg-subtle;
+        cursor: not-allowed;
+      }
+
+      &--error {
+        border-color: #e53935 !important;
+
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(229, 57, 53, 0.2) !important;
+        }
+      }
+    }
+
+    // Password Toggle Button
+    .password-toggle-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      padding: 6px;
+      border-radius: $radius-sm;
+      color: $text-muted;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: $text-main;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $lime-accent;
+        outline-offset: 1px;
+      }
+
+      svg {
+        width: 17px;
+        height: 17px;
+      }
+    }
+  }
+
+  .form-field-error {
+    font-size: 12px;
+    color: #e53935;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: $font-sans;
+    animation: authSlideDown 0.15s ease-out;
+  }
+}
+
+// Password strength indicator
+.password-strength-box {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .strength-bars {
+    display: flex;
+    gap: 4px;
+    height: 4px;
+    width: 100%;
+
+    .strength-segment {
+      flex: 1;
+      height: 100%;
+      border-radius: 2px;
+      background-color: $border-color;
+      transition: background-color 0.2s ease;
+
+      &--weak {
+        background-color: #e53935;
+      }
+
+      &--fair {
+        background-color: #fb8c00;
+      }
+
+      &--good {
+        background-color: #43a047;
+      }
+
+      &--strong {
+        background-color: $lime-accent;
+      }
+    }
+  }
+
+  .strength-label-text {
+    font-family: $font-mono;
+    font-size: 11px;
+    color: $text-muted;
+    display: flex;
+    justify-content: space-between;
+
+    .strength-status {
+      font-weight: 500;
+      color: $text-main;
+    }
+  }
+}
+
+// Right side: Dark showcase panel
+.auth-right {
+  flex: 1.1;
+  background-color: $bg-code;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 56px 64px;
+  position: relative;
+  overflow: hidden;
+
+  // Subtle radial gradient in background
+  &::before {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -120px;
+    width: 440px;
+    height: 440px;
+    background: radial-gradient(circle, rgba(232, 255, 61, 0.08) 0%, rgba(17, 17, 17, 0) 70%);
+    pointer-events: none;
+  }
+
+  @media (max-width: 900px) {
+    display: none; // Prompt requirement: On mobile, show only the form, single column
+  }
+
+  .showcase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1;
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      color: #ffffff;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+  }
+
+  .showcase-center {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 480px;
+    z-index: 1;
+
+    .showcase-tagline {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+
+      .highlight-lime {
+        color: $lime-accent;
+      }
+    }
+
+    // Animated Mock Chat Preview
+    .mock-chat-preview {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: $radius-lg;
+      padding: 24px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+
+      // Bubble 1: User message
+      .mock-bubble-user {
+        align-self: flex-end;
+        background-color: rgba(255, 255, 255, 0.12);
+        color: #f4f4f4;
+        font-size: 13.5px;
+        line-height: 1.5;
+        padding: 10px 16px;
+        border-radius: $radius-md $radius-md 2px $radius-md;
+        max-width: 82%;
+        animation: authSlideUp 0.4s ease-out;
+      }
+
+      // Bubble 2: SocketMind AI message
+      .mock-bubble-ai {
+        align-self: flex-start;
+        display: flex;
+        gap: 12px;
+        max-width: 92%;
+        animation: authSlideUp 0.6s ease-out;
+
+        .mock-bot-avatar {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background-color: #222222;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          color: $lime-accent;
+
+          svg {
+            width: 15px;
+            height: 15px;
+          }
+        }
+
+        .mock-ai-content {
+          background-color: #1a1a1a;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: #e5e5e5;
+          font-size: 13.5px;
+          line-height: 1.55;
+          padding: 12px 16px;
+          border-radius: $radius-md $radius-md $radius-md 2px;
+        }
+      }
+
+      // Typing dots animation
+      .mock-typing-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-left: 40px;
+
+        .typing-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background-color: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          padding: 6px 12px;
+          border-radius: 999px;
+
+          .dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: $lime-accent;
+
+            &-1 {
+              animation: authDotPulse 1.4s infinite ease-in-out;
+            }
+
+            &-2 {
+              animation: authDotPulse 1.4s infinite ease-in-out;
+              animation-delay: 0.2s;
+            }
+
+            &-3 {
+              animation: authDotPulse 1.4s infinite ease-in-out;
+              animation-delay: 0.4s;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .showcase-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: $font-mono;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 1;
+
+    .badge-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #e5e5e5;
+
+      .live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: $lime-accent;
+        box-shadow: 0 0 8px $lime-accent;
+      }
+    }
+  }
+}
+
+// Keyframe Animations
+@keyframes authFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes authSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes authSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes authDotPulse {
+  0%, 80%, 100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-page,
+  .auth-error-banner,
+  .form-field-error,
+  .mock-bubble-user,
+  .mock-bubble-ai {
+    animation: none !important;
+  }
+
+  .dot-1,
+  .dot-2,
+  .dot-3 {
+    animation: none !important;
+    opacity: 0.7 !important;
+  }
+}
